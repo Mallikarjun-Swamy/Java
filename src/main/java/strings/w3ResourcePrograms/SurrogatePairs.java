@@ -21,12 +21,7 @@ public class SurrogatePairs {
         System.out.printf("High surrogate is U+%04X%n", (int) high);
         System.out.printf("Low surrogate is U+%04X%n", (int) low);
 
-
-
-
     }
-
-
 
 
 
