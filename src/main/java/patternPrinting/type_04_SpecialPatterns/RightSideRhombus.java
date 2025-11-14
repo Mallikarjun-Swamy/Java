@@ -14,9 +14,6 @@ public class RightSideRhombus {
                 System.out.print("*" + " ");
             }
             System.out.println();
-
-
-
         }
 
     }
