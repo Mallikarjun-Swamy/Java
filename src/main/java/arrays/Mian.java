@@ -14,7 +14,7 @@ public class Mian {
         //Question : multiply 2 to odd indexed elements and add 10 to even indexed elements
 //        ProductOfArray.printNewArray(arr);
 
-        LinearSearch.returnTargetElementIndex(arr, 2);
+//        LinearSearch.returnTargetElementIndex(arr, 2);
 
 //        TwoSum.twoSum(arr, 54);
 //        SecondLargestElement.secondLargestElement(arr);
