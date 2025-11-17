@@ -1,0 +1,624 @@
+        Inner Class = A class declared inside another class.
+
+                class Outer {
+                    class Inner { }
+                }
+
+        Inner classes help in logically grouping classes, accessing private members, and writing more readable code
+
+        Why Use Inner Classes?
+                1. Logical grouping:
+                    If a class is useful only for one outer class, keep it inside.
+                2. Can access private members of outer class
+                    Inner classes have full access to:
+                    private variables
+                    private methods
+                    constructors
+
+                3. Better encapsulation.
+                    Hide implementation details.
+
+                4. Event handling & callbacks
+                    Used in GUI frameworks, multi-threading, collections etc.
+
+                5. Scoped classes
+                    Useful in situations where a tiny class should not be visible globally.
+
+        Types of Inner Classes: (Java has 4 types:)
+                1. Member Inner Class (Regular Inner Class)
+                2. Local Method Inner Class
+                3. Anonymous Inner Class
+                4. Static Nested Classes
+
+
+        1. Member Inner Class (Regular Inner Class)
+                      A Member Inner Class is a non-static class declared directly inside another class but
+                      outside methods, constructors, and blocks.
+
+                      Member Inner Classes are extremely useful when:
+                      1. A class is meaningful only in the context of another class:
+                            Example: Node inside LinkedList.
+
+                      2. Strong relationship between inner and outer class:
+                            Inner class tightly depends on the outer class functions.
+
+                      3. Inner class needs full access to outer class members:
+                            Even private members are accessible.
+
+                      4. Better encapsulation: You can hide inner logic from outside the world.
+
+                      Example:  (Declared only Inside the class Outer class body - not in method, constructor or blocks body)
+                      class Outer {
+                            private int x = 10;
+
+                            class Inner {
+                                void show() {
+                                System.out.println(x); // allowed
+                                }
+                            }
+                      }
+
+                      Key Characteristics (Very Important):
+                            1. You cannot create a Inner Class object without creating its outer class object.
+                                Ex: Outer o = new Outer();
+                                    Outer.Inner i = o.new Inner();
+                                Because the inner class belongs to the specific outer instance.
+
+                            2. Inner class has a hidden reference to the outer class
+                                This is why inner classes can access outer class members directly.
+
+                            3. Inner class can access everything in the outer class
+                                Including:
+                                    private variables
+                                    private methods
+                                    static members
+                                    instance members
+
+                            4. Outer class can access inner class members only through object:
+                                Outer must create inner object to use its methods.
+
+                                  class Outer {
+                                      class Inner {
+                                          int y = 20;
+                                          void innerMethod() {}
+                                      }
+
+                                      void outerMethod() {
+                                          Inner in = new Inner();
+                                          System.out.println(in.y);
+                                          in.innerMethod();
+                                      }
+                                  }
+                            5. No static declarations allowed inside Member Inner Class:
+                                    Because inner class is an instance member, so static members are not allowed.
+
+                                    class Inner {
+                                        static int x;   // ❌ Not allowed
+                                    }
+
+                                    Except:static final constants
+                                    static final int A = 10; // ✔ allowed
+
+                            6. Access of Shadowed Variables:
+                                If both inner and outer class have same variable name:
+
+                                    class Outer {
+                                        int x = 10;
+
+                                        class Inner {
+                                            int x = 100;
+
+                                            void show() {
+                                                int x = 1000;
+                                                System.out.println(x);            // 1000
+                                                System.out.println(this.x);       // 100
+                                                System.out.println(Outer.this.x); // 10
+                                            }
+                                        }
+                                    }
+
+                      Real-time Examples (Used Everywhere)
+
+                            1. LinkedList Node Class (Java internally uses Member Inner Classes.)
+                                    public class LinkedList {
+                                        private class Node {
+                                            int data;
+                                            Node next;
+                                        }
+                                    }
+                                  Why Member Inner Class?
+                                  Node is meaningless outside LinkedList
+                                  Node needs access to list internals
+
+
+                            2. HashMap Entry Class
+                                    static class Node<K,V> implements Map.Entry<K,V> {
+                                        final K key;
+                                        V value;
+                                        Node<K,V> next;
+                                    }
+                                Entry exists only with HashMap → memory and logic grouped.
+
+                            3. GUI Frameworks (Swing, Android)
+                                Component listeners and UI components are often inner classes.
+
+                            4. Encapsulation in Domain Models
+                                        Transaction depends on Account’s internal fields.
+
+                                    class BankAccount {
+                                        private double balance;
+
+                                        class Transaction {
+                                            void deposit(double amount) {
+                                                balance += amount;
+                                            }
+                                        }
+
+                                    }
+
+                      🎯 Advantages of Member Inner Class
+                      ✔ Full access to outer class
+                      No need to expose getters/setters.
+                      ✔ Better encapsulation
+                      Hide classes that are only relevant inside outer class.
+                      ✔ More readable code
+                      Grouped logically.
+                      ✔ Useful for modeling real-world relationships
+                      HAS-A relationships like:
+                      Car has Engine
+                      Tree has Leaf
+                      Account has Transaction
+
+                      Disadvantages
+                      ❌ Can lead to memory leaks
+                      Inner class holds reference to outer class.
+                      ❌ Harder to test in isolation
+                      Inner classes depend on outer object.
+                      ❌ Cannot define static members
+                      Limited flexibility.
+
+        2. Local Method Inner Class:
+                       A Local Inner Class is a class declared inside a method, constructor, or block.
+                       It is the MOST restricted and MOST encapsulated type of inner class.
+
+                            class Outer {
+                                void outerMethod() {
+
+                                    class LocalInner {
+                                        // local inner class
+                                    }
+                                }
+                            }
+                            A Local Inner Class is always local to the method, just like a local variable.
+
+                       ⭐ Why do we use Local Inner Classes?
+                            ✔ 1. To create a helper class that is used only inside one method
+                                    No need to pollute the outer class.
+
+                            ✔ 2. To improve encapsulation
+                                    The class cannot be accessed from anywhere else.
+
+                            ✔ 3. For event handling (legacy Java, before lambdas)
+                                    Used in Swing GUI, timer tasks, and small listeners.
+
+                            ✔ 4. For creating short-lived worker classes
+                                    Useful in Multi-threaded code, parsing logic, callback handlers.
+
+                            ✔ 5. For organizing complex method logic
+                                    Make code modular within a method.
+
+                       🧠 Key Characteristics (Very Important)
+
+                            1. Class is created inside a method — not accessible outside
+                                You cannot use LocalInner outside its method.
+                                    void m() {
+                                        class LocalInner { }
+                                    }
+                                    // LocalInner li = new LocalInner();  // ❌ ERROR (outside method)
+
+                            2. Can access local variables only if they are effectively final
+                                This is the MOST IMPORTANT rule.
+
+                                    void show() {
+                                        int x = 10;  // effectively final
+
+                                        class LocalInner {
+                                            void print() {
+                                                System.out.println(x); // ✔ allowed
+                                            }
+                                        }
+                                    }
+
+                                    If x changes, error:
+
+                                    void show() {
+                                        int x = 10;
+
+                                        x = 20;  // ❌ now NOT effectively final
+
+                                        class LocalInner { }
+                                    }
+
+                                Reason:
+                                Local inner class object may live longer than the method execution
+                                → JVM makes copies of final variables.
+
+                            3. Can access all instance and static members of the outer class (Because it has the hidden reference.)
+                            4. Cannot have static members (Except static final constants.)
+                            5. Object creation happens inside the method (Cannot be created from outside.)
+
+
+                            🧩 Very Important: When Local Inner Class is loaded?
+                                    It is loaded only when the method is called (lazy loading).
+                                    This saves memory.
+
+                            🧪 Full Example with all Features
+
+                                        class Outer {
+
+                                            private int a = 100;
+                                            static int b = 200;
+
+                                            void display() {
+
+                                                int localVar = 10;  // effectively final
+
+                                                class LocalInner {
+                                                    void show() {
+                                                        System.out.println("Outer a = " + a);
+                                                        System.out.println("Outer static b = " + b);
+                                                        System.out.println("Local var = " + localVar);
+                                                    }
+                                                }
+
+                                                LocalInner li = new LocalInner();
+                                                li.show();
+                                            }
+                                        }
+
+                                        public class Demo {
+                                            public static void main(String[] args) {
+                                                Outer o = new Outer();
+                                                o.display();
+                                            }
+                                        }
+
+                            👜 Real-Time Use Cases:
+
+                              1. ExecutorService (task inside a method)
+
+                                    void scheduleTask() {
+                                        class Task implements Runnable {
+                                            public void run() {
+                                                System.out.println("Processing");
+                                            }
+                                        }
+                                        new Thread(new Task()).start();
+                                   }
+                              2.Data Parsing
+
+                                    void parseData(String input) {
+
+                                        class Validator {
+                                            boolean isValid(String s) {
+                                                return s != null && !s.isEmpty();
+                                            }
+                                        }
+
+                                        Validator v = new Validator();
+                                        if (v.isValid(input)) {
+                                            System.out.println("Valid");
+                                        }
+                                    }
+
+
+                              3. Creating one-time helper objects inside methods
+
+                                        void sortData() {
+                                            class SortHelper {
+                                                void quickSort(){ /*...*/ }
+                                            }
+                                        }
+                       🎯 Advantages
+                            ✔ Only visible inside method → Perfect encapsulation
+                            ✔ Good for grouping method-specific logic
+                            ✔ Reduces class-level clutter
+                            ✔ Saves memory (loaded only when method is called)
+                            ✔ Easy to maintain
+                       ⚠️ Disadvantages
+                            ❌ Cannot use outside method — limited scope
+                            ❌ Cannot have static members
+                            ❌ Hard to reuse
+                            ❌ Difficult to write long logic inside method
+
+
+        4. Anonymous Inner Class:
+                An Anonymous Inner Class is a class without a name that you create on the spot to provide
+                instant implementation of an interface or abstract class or override methods of a normal class.
+
+                It is the most powerful and widely used inner class in Java.
+
+                ✅ What Is an Anonymous Inner Class?
+                    It is:
+                    A class without a name
+                    Created inside a single expression
+                    Created when you need an object with some customized behavior
+                    You cannot reuse it later (because it has no name)
+                    Mostly used with interfaces, abstract classes, and event handling
+
+                🎯 Why Do We Use Anonymous Inner Classes?
+
+                    1️⃣ To provide quick implementation
+                        When you need a one-time implementation of an interface/class.
+
+                    2️⃣ To reduce boilerplate code
+                        Instead of creating a separate class file, you write the logic inline.
+
+                    3️⃣ To handle events
+                        Used heavily in GUIs, Android, and callback mechanisms.
+
+                    4️⃣ To override methods instantly
+                        Useful for providing ad-hoc custom behavior.
+
+
+                Syntax:
+
+                1️⃣ Anonymous class extending another class
+
+                            Parent p = new Parent() {
+                                @Override
+                                void show() {
+                                    System.out.println("Custom implementation");
+                                }
+                            };
+
+                2️⃣ Anonymous class implementing an interface
+
+                            Runnable r = new Runnable() {
+                                @Override
+                                public void run() {
+                                    System.out.println("Running task...");
+                                }
+                            };
+
+                3️⃣ Anonymous class as method argument (very common)
+
+                            Thread t = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    System.out.println("Thread executed");
+                                }
+                            });
+                            t.start();
+
+                💼 Real-Time Use Cases:
+
+
+                    1. Event Handling in GUI Frameworks (Swing, AWT, JavaFX)
+
+                        button.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                System.out.println("Button clicked!");
+                            }
+                        });
+                        Most GUI code uses anonymous classes.
+
+
+                    2. Threads & Concurrency
+
+                         new Thread(new Runnable() {
+                             public void run() {
+                                 System.out.println("Thread running");
+                             }
+                         }).start();
+
+                    3. Android Development
+                            button.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    System.out.println("Clicked");
+                                }
+                            });
+
+                            Anonymous classes are everywhere in Android.
+
+                    4. Custom Sorting (Comparator)
+
+                            Arrays.sort(arr, new Comparator<Integer>() {
+                                @Override
+                                public int compare(Integer a, Integer b) {
+                                    return b - a;
+                                }
+                            });
+
+
+        4. Static Nested Classes
+                    A Static Nested Class is a class declared inside another class but with the static keyword.
+                            class Outer {
+                                static class Inner {
+                                    // static nested class
+                                }
+                            }
+                          It is also called:
+                          Static Inner Class or Static Member Class
+
+                          But technically, it is NOT an Inner Class (because inner classes are tied to instances).
+                          It behaves similar to a top-level class but logically grouped inside an outer class.
+
+                    Why do we use Static Nested Classes?
+                          ✔ 1. To logically group helper classes
+                               If a class relates only to the outer class but does not need outer class’s instance variables.
+
+                          ✔ 2. To access only static members of outer class
+                               Useful when designing utilities.
+
+                          ✔ 3. To reduce memory usage
+                               Inner classes carry a hidden reference to outer class → more memory.
+                               Static nested classes do not carry that reference.
+
+                          ✔ 4. Used heavily in the Builder Pattern
+                                (Efficient way to construct complex objects.)
+
+                          ✔ 5. To create readable, beautiful, encapsulated code
+                                Java Collections Framework uses these everywhere.
+
+                    🏛 Key Characteristics (Very Important)
+                        1. No Outer Class Object Needed:
+                            Because static nested class belongs to the class, not object.
+                             So,
+                             Outer.Inner i = new Outer.Inner(); // ✔ directly allowed
+
+                        2. Cannot access instance (non-static) members of outer class
+                            Static nested class can access only:
+                            static variables
+                            static methods
+                            static blocks
+
+                             example:
+                                    class Outer {
+                                        private static int a = 10;
+                                        private int b = 20;
+
+                                        static class Inner {
+                                            void show() {
+                                                System.out.println(a); // ✔ allowed
+                                                // System.out.println(b); ❌ error
+                                            }
+                                        }
+                                    }
+
+                        3. Can have static members
+                                Unlike normal inner classes, static nested classes CAN have static members.
+                                    static class Inner {
+                                        static int x = 50;
+                                    }
+
+
+                    🧠 How to Create Objects?
+                        From outside the outer class:   Outer.Inner obj = new Outer.Inner();
+                        From inside the outer class:    Inner i = new Inner();
+
+                    Real-Time Examples (Used Everywhere)
+
+                    1️⃣ Builder Pattern — Static Nested Class : This is the most important use case.
+
+                            class Student {
+                                private String name;
+                                private int age;
+
+                                static class Builder {
+                                    private String name;
+                                    private int age;
+
+                                    Builder setName(String name) {
+                                        this.name = name;
+                                        return this;
+                                    }
+
+                                    Builder setAge(int age) {
+                                        this.age = age;
+                                        return this;
+                                    }
+
+                                    Student build() {
+                                        Student s = new Student();
+                                        s.name = this.name;
+                                        s.age = this.age;
+                                        return s;
+                                    }
+                                }
+                            }
+
+                            Used in:
+                            Lombok builders
+                            DTO builders
+                            Immutable classes
+                            Spring Boot response objects
+
+                    2️⃣ Java Collections Framework Uses Static Nested Classes
+
+                           Example: HashMap.Node
+                                    static class Node<K,V> implements Map.Entry<K,V> {
+                                        final K key;
+                                        V value;
+                                        Node<K,V> next;
+                                    }
+
+                                    Why static?
+                                    Node doesn’t need the HashMap instance
+                                    Efficient memory usage
+                                    Used internally only
+
+                    3️⃣ Enums internally use static nested classes
+                            Every enum constant has a static nested class behind the scenes.
+
+
+                    4️⃣ Android’s View and R Classes
+                            R.id, R.layout, R.drawable → all static nested classes.
+
+                                    public final class R {
+                                        public static final class id {
+                                            public static int btnLogin = 101;
+                                        }
+                                    }
+
+
+                    5️⃣ Wrapping utility/helper classes
+
+                            class MathUtils {
+
+                                static class PrimeHelper {
+                                    boolean isPrime(int n) {
+                                        // logic
+                                        return true;
+                                    }
+                                }
+                            }
+
+                    🧩 Full Example with All Features
+
+                            class Outer {
+
+                                private static int staticValue = 100;
+                                private int instanceValue = 200;
+
+                                static class Inner {
+
+                                    static int innerStaticValue = 300;
+
+                                    void display() {
+                                        System.out.println(staticValue);       // ✔ allowed
+                                        // System.out.println(instanceValue);  // ❌ not allowed
+                                        System.out.println(innerStaticValue);  // ✔ allowed
+                                    }
+                                }
+
+                                void show() {
+                                    Inner in = new Inner();
+                                    in.display();
+                                    System.out.println(Inner.innerStaticValue);
+                                }
+                            }
+
+                            public class Demo {
+                                public static void main(String[] args) {
+                                    Outer.Inner obj = new Outer.Inner();
+                                    obj.display();
+                                }
+                            }
+
+                    🎯 Advantages
+                    ✔ No need for outer class object
+                    ✔ Lower memory footprint
+                    ✔ Good for helper classes
+                    ✔ Best for Builder pattern
+                    ✔ Can contain static members
+                    ✔ Better for performance-critical sections
+
+                    ⚠️ Disadvantages
+                    ❌ Cannot access outer class instance members
+                    ❌ Used incorrectly, it can create confusing structure
+                    ❌ Too many static nested classes reduce readability
+
+
