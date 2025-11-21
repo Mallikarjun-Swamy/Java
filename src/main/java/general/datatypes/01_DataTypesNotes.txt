@@ -1,0 +1,116 @@
+
+        Data Types in Java: -
+                Java is a statically typed (Strongly typed) language, which means every variable must be declared with
+                a type before using it.
+
+                A Data Types Specifies:
+                   1. The type of data to be stored in a variable (example like integer, boolean, floating Point, char etc)
+                   2. The Size of the memory allocated for that variable.
+                   3. The range of values it can store (like -128 to 127)
+                   4. The operations which can be performed on that.
+
+                 Data types used in almost everywhere in programing in java,
+                 like in variable declaration, method parameters, method return types, class fields,  conditions and in loops.
+
+
+            There Mainly two Categories:
+                1. Primitive DataType (8 types - byte,short,char,int, float,double,long and boolean)
+                2. Non-Primitive (Reference) Data Types. (classes, interfaces, arrays, String, enums, and collections  etc)
+
+
+            1. Primitive DataType:
+                1. Byte:
+                    Stores whole numbers from -128 to 127 (allocated memory size – 1 byte)
+                    Used in low-level data handling, file streams, network protocols, and memory-efficient arrays
+
+                    example:  byte age = 25;
+
+                2. Short:
+                    Stores whole numbers from -32,768 to 32,767 (memory size – 2 bytes)
+                    Useful when dealing with large arrays of integers to save memory.
+
+                    example: short temperature = 280;
+
+                3. Int:
+                    Stores whole numbers from -2,147,483,648 to 2,147,483,647 (-2^31 to (2^31)-1) (memory size – 4 bytes)
+                    Default choice for integer values in Java applications.
+
+                    Example: int salary = 50000;
+
+                4. Long:
+                     Stores very large whole numbers (memory size – 8 bytes), Range roughly ±9,22,33,72,036,85,47,75807(-2^63 to (2^63)-1)
+                     Used for large counts like population, timestamps, big IDs
+
+                     example: long population = 8000000000L;
+
+                5. Float:
+                      Stores decimal numbers in the range ±3.4 × 10³⁸ (memory size – 4 bytes).
+                      Used where memory saving is required and precision beyond 7 digits is not needed.
+
+                      example : float interestRate = 7.25f;
+
+                6. Double:
+                       Stores large decimal numbers in the range ±1.7 × 10³⁰⁸ (memory size – 8 bytes)
+                       Default for decimal values; used in scientific calculations requiring high precision.
+
+                       example : double pi = 3.141592653589;
+
+                7. Char:
+                        Stores a single Unicode character (range: 0 to 65,535) (memory size – 2 bytes), default value null character.
+                        Used for characters, symbols, Unicode characters like ₹, emojis (some require surrogate pairs).
+
+                        examples: char grade = 'A';  //65 - decimal Unicode value of A
+                                  char rupee = '\u20B9'; // ₹
+
+                8. Boolean:
+                        Stores true or false only, by default false;
+                        Used in checking conditions.
+
+                        example : boolean isRaining = true;
+
+
+                Widening and Narrowing (Type Casting):
+
+                1. Widening (Widening is done automatically by the Java compiler.)
+                   Widening is the process of converting a value from a smaller data type to a larger data type.
+                   This conversion is done automatically by the Java compiler because it is safe and does not
+                   cause data loss.
+
+                    Explanation
+
+                    In widening conversion, Java automatically promotes the smaller type into a larger compatible type.
+                    Larger data types have a bigger memory size or larger range, so they can safely store
+                    any value of the smaller data type.
+
+                    ✔ Example
+                    int a = 10;
+                    long b = a;     // int → long (widening)
+                    float c = b;    // long → float (widening)
+                    double d = c;   // float → double (widening)
+
+                    Widening conversion order:
+                        byte → short → int → long → float → double
+                                        ↑
+                                      char
+
+                2. Narrowing Type Conversion (Explicit Conversion)
+                    Narrowing is the process of converting a value from a larger data type to a smaller data type.
+                    This conversion is not done automatically. You must do it explicitly using a cast,
+                    because it may cause data loss, overflow, or precision loss.
+
+                    Explanation:
+                    In narrowing conversion, you ask Java to convert a bigger type into a smaller type.
+                    Since smaller types have less memory and smaller range, the original value may not fit correctly.
+                    Therefore, Java forces the programmer to add a cast to show that you accept the risk.
+
+                    ✔ Example
+                    double a = 98.65;
+                    int b = (int) a;   // double → int (narrowing)
+
+                    Narrowing conversion order
+                    double → float → long → int → short → byte
+                                            ↓
+                                            char (after 65565 int value, data loss occures)
+
+
+
