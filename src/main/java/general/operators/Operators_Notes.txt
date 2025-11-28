@@ -1,0 +1,204 @@
+Operators in Java:
+    Operators in Java are special symbols used to perform operations
+    on variables and values. They form the basis of all computation in Java.
+
+    Java has 8 categories of operators:
+
+            1. Arithmetic Operators
+            2. Unary Operators
+            3. Assignment Operators
+            4. Relational (Comparison) Operators
+            5. Logical Operators
+            6. Bitwise Operators
+            7. Ternary Operator
+            8. Type Casting Operator
+
+    1) Arithmetic Operators:
+            These are used to perform common mathematical operations.
+
+            Operator	  Name	            Example	                 Description
+              +	        Addition	        a + b	                Adds two operands.
+              -	        Subtraction	        a - b	                Subtracts the second operand from the first.
+              *	        Multiplication	    a * b	                Multiplies two operands.
+              /	        Division	        a / b	                Divides the first operand by the second.
+              %	        Modulus	            a % b	                Returns the remainder of the division.
+              ++	    Increment	        a++ or ++a	            Increases the value of an operand by 1.
+              --	    Decrement	        a-- or --a	            Decreases the value of an operand by 1.
+
+    2) Unary Operators: Unary = operation on one operand.
+
+            2.1 Increment / Decrement
+
+                Operator	      Name	            Example	                 Description
+                  ++	       Increment	        a++ or ++a	            Increases the value of an operand by 1.
+                  --	       Decrement	        a-- or --a	            Decreases the value of an operand by 1.
+
+
+
+               Types:
+               Pre-increment: ++a
+               Post-increment: a++
+
+               Example:
+                       int a = 5;
+                       System.out.println(++a); // 6 (first increase then print)
+                       System.out.println(a++); // 6 (first print then increase)
+
+
+            2.2 Unary Plus / Minus (+/-)
+
+                    Operator	      Meaning
+                      +a	        Positive
+                      -a	        Negative value
+
+                    Example:
+                        int x = 5;
+                        System.out.println(-x);  // -5
+
+
+            2.3 Logical NOT (!)
+
+                    Used with boolean.
+                    Operator	       Meaning	            Example
+                       !	        Reverse boolean	      !true = false
+
+
+
+    3) Assignment Operators:  These are used to assign a value to a variable.
+
+            Operator           	  Name	                Example	        Equivalent to
+               =            Simple Assignment           a = 10          Assigns the value 10 to a.
+               +=           Add and Assign              a += 5          a = a + 5
+               -=           Subtract and Assign         a -= 5	        a = a - 5
+               *=	        Multiply and Assign	        a *= 5	        a = a * 5
+               /=	        Divide and Assign	        a /= 5	        a = a / 5
+               %=	        Modulus and Assign	        a %= 5	        a = a % 5
+
+
+    4) Relational (Comparison) Operators:
+            These operators compare two values and return a boolean result (true or false).
+
+            Operator	         Meaning	            Example
+               ==	            Equal to	            a == b
+               !=	            Not equal	            a != b
+               >	            Greater than	        a > b
+               <	            Less than	            a < b
+               >=	            Greater or equal	    a >= b
+               <=	            Less or equal	        a <= b
+
+
+    5) Logical Operators:
+        These are used to combine multiple boolean expressions
+        (results of relational operators). They also return a boolean result.
+
+        Operator	   Meaning	        Example
+          &&	      Logical AND	    both must be true
+          ||	      Logical OR	    at least one true
+           !	      Logical NOT	    reverse
+
+
+    6) Bitwise Operators : Operate on bits (0s and 1s)
+            These operators perform operations directly on the individual bits of integers
+
+
+            Operator	           Meaning
+              &	                 Bitwise AND
+              |	                 Bitwise OR
+              ^	                 XOR
+              ~	                 Bitwise NOT
+              <<	             Left shift
+              >>	             Right shift
+              >>>	             Unsigned right shift
+
+    7) Ternary Operator:
+            This is a shortcut for the if-then-else statement.
+            It operates on three operands and returns one of two values based on a boolean condition.
+
+            Syntax:
+            condition ? expression_if_true : expression_if_false
+
+            Example:
+            int age = 18;
+            String msg = (age >= 18) ? "Adult" : "Minor";
+
+
+
+    8Types of Cast Operator in Java:
+
+        Java supports two big categories of casting:
+
+        1. Primitive Casting
+        2. Reference (Object) Casting
+
+            1. Primitive Casting:
+               Primitive casting is used when you convert one primitive data type into another.
+
+                Java allows two types of primitive casting:
+
+                1.1 Widening Casting (Automatic / Implicit) : Converting small type → bigger type
+
+                    Order ->  byte → short → int → long → float → double
+                                               ^
+                                               |
+                                             char
+
+                    Why is it automatic?:
+                    Because there is no data loss.
+
+                            Example
+                            int a = 10;
+
+                1.2 Narrowing Casting (Manual / Explicit) : Converting bigger type → smaller type
+
+                    Order (size decreasing) :   double → float → long → int → short → byte
+
+                    Why is it NOT automatic?
+                    Because data may be lost (overflow, truncation).
+
+                    double d = 10.56;
+                    int a = (int) d; // narrowing
+                    Result: a = 10 (decimal lost)
+
+
+
+            2. Reference (Object) Casting:
+                    Reference (object) casting is used when converting one object type to another
+                    within the same inheritance hierarchy.
+
+                    You can cast only when there is IS-A relationship.
+
+                    There are two types:
+                    Upcasting (Widening Reference Casting)
+                    Downcasting (Narrowing Reference Casting)
+
+
+                    2.1 Upcasting (Parent Reference ← Child Object)
+
+                            This is always safe.
+
+                            Example
+                            class Animal { }
+                            class Dog extends Animal { }
+                            Animal a = new Dog(); // Upcasting
+
+                            Why safe?
+                            Child object always contains parent properties.
+
+                            Use cases:  Polymorphism, Loose coupling, Runtime method overriding
+
+                    2.2 Downcasting (Child Reference ← Parent Reference)
+
+                        This is not automatic and may be unsafe.
+                        You MUST explicitly cast.
+
+                        Example
+                        Animal a = new Dog(); // upcast
+                        Dog d = (Dog) a;      // downcast
+
+                        Dangerous Scenario
+                        Animal a = new Animal();
+                        Dog d = (Dog) a; //❌ ClassCastException
+
+                        Why dangerous?
+                        A pure parent object cannot become a child object.
+
