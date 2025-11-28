@@ -1,0 +1,209 @@
+Serialization in Java:
+
+    1. What is Serialization?
+        Java Serialization is the process of converting the state of an object into a
+        sequence of bytes (a byte stream). This stream can then be:
+
+        Stored in a file
+        Stored in a database
+        Sent over a network (RMI, sockets, messaging)
+        Cached or transferred between JVMs
+
+        It's a platform-independent mechanism, meaning an object serialized on one platform (e.g., Windows) can be
+        deserialized on a completely different one (e.g., Linux), provided the class structure is compatible.
+
+    2. Why Do We Need Serialization?
+        Serialization is useful in scenarios like:
+        Sending objects over a network (e.g., distributed applications, microservices)
+        Storing object state to disk and reading it back later (file)
+        Java RMI (Remote Method Invocation)
+        HTTP session replication in servers (Tomcat, JBoss)
+        Caching objects in frameworks
+
+    3. How Serialization Works Internally
+        When a class implements java.io.Serializable, Java uses the ObjectOutputStream to write the object
+        as a byte stream.
+
+        ✔ Internal Steps:
+        During Serialization:
+        ObjectOutputStream checks whether the class implements Serializable.
+        JVM creates a binary representation of: object fields, class metadata, hierarchy info
+        Writes the data into:  File, Network socket, Memory buffer
+
+        During Deserialization:
+        ObjectInputStream reads the byte stream.
+
+        JVM:
+        Loads the class definition (if required)
+        Creates object without calling the constructor
+        Restores values of fields
+
+        ✔ Important:
+        Constructor does NOT run during deserialization.
+        (some time Parent class constructor may run if Parent class is a non-serializable)
+        JVM uses special mechanism through ObjectStreamClass and allocateInstance().
+
+    4. Example
+
+        //Class to Serialize
+
+        import java.io.Serializable;
+        class Student implements Serializable {
+            private static final long serialVersionUID = 1L;
+            int id;
+            String name;
+        }
+
+        //Serialization
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("data.ser"));
+        oos.writeObject(new Student(1, "Arjun"));
+        oos.close();
+
+        //Deserialization
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("data.ser"));
+        Student s = (Student) ois.readObject();
+        ois.close();
+
+    5.Key Rules and Best Practices
+        To properly implement and maintain Java serialization, several rules must be followed:
+
+        Implement Serializable:
+            The class you want to serialize must implement java.io.Serializable.
+            If a class contains references to other objects, those objects' classes must also implement Serializable,
+            or a NotSerializableException will be thrown.
+
+        Inheritance:
+            If a parent class is serializable, all its subclasses are automatically serializable.
+            However, the non-serializable parent's fields will be initialized to their default values
+            (e.g., 0 for int, null for objects) during deserialization, as its constructor is called.
+
+        Non-Serializable Fields:
+            static fields are not serialized because they belong to the class, not the instance.
+
+        transient fields are not serialized.
+            Use the transient keyword to mark instance fields
+            whose values you do not want to persist (e.g., security-sensitive data or calculated/cached fields).
+            They will be initialized to their default values during deserialization.
+
+        serialVersionUID:
+            Every serializable class should explicitly declare a private static final long serialVersionUID.
+            This ID is used during deserialization to verify that the sender and receiver have loaded classes
+            that are compatible.
+            Example : private static final long serialVersionUID = 1L;
+
+            If you don't declare it, the JVM generates one based on class details,
+            which can change due to minor class modifications, leading to an InvalidClassException.
+            Explicitly defining it prevents this compatibility break.
+
+
+        Customization Methods: For advanced control, you can implement special private methods in your class:
+            private void writeObject(ObjectOutputStream out) throws IOException
+            private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+
+        These methods allow you to control the exact byte stream content or implement encryption/compression logic.
+
+    7. Problems / Drawbacks of Java Serialization
+
+        Slow
+        Fragile (breaks easily with class changes)
+        Security issues (vulnerable to attacks)
+        Difficult to maintain across versions
+        Not good for microservices / distributed systems
+        (industry moved to JSON, Protobuf, Avro, etc.)
+
+        ⚠️ Serialization is Considered Dangerous and Obsolete (legacy)
+        Oracle and the Java platform architects have stated:
+        Java’s built-in serialization is inherently insecure
+        It is a major source of vulnerabilities
+        It is fragile across versions
+        It is slow and hard to maintain
+        They encourage developers to avoid it in new projects
+
+    8.Modern Serialization:  🧐 JSON and XML: A Different Form of Serialization:
+
+        JSON (JavaScript Object Notation) and XML (Extensible Markup Language) are both text-based,
+        human-readable data interchange formats.
+
+        When you convert a Java object to JSON or XML, you are performing data serialization.
+        The process is often called marshalling (serialization) and unmarshalling (deserialization) in this context.
+
+        1. How they Work (The Process)
+        Instead of relying on the object's memory structure (like Java Serialization),
+        JSON and XML serialization typically involve an external library (like Jackson, Gson, or JAXB)
+        that uses Reflection to read the object's public fields and getters/setters.
+
+        Serialization (Object to Text):
+        The library inspects the Java object.
+        It maps the object's field names (e.g., firstName, age) to keys/tags in the JSON/XML structure.
+        It maps the field values (e.g., "Alice", 30) to the corresponding JSON values or XML element content.
+        The result is a structured string (text) that is platform- and language-agnostic.
+
+        Deserialization (Text to Object):
+        The library reads the JSON/XML string.
+        It identifies the keys/tags.
+        It uses the key/tag names to match and populate the fields of a target Java class.
+
+        2. Example Structure:
+            JSON:
+                Person p = new Person("Bob", 42);
+                json {"name": "Bob", "age": 42}
+
+            XML:
+                Person p = new Person("Bob", 42);
+                xml :
+                    <Person>
+                        <name>Bob</name>
+                        <age>42</age>
+                    </Person>
+
+    Key Points:
+    Java Serialization = Convert object → byte stream (binary)
+    JSON/XML Serialization = Convert object → text format
+
+    Both are serialization but done differently.
+
+        Why JSON/XML Doesn’t Need Serializable?
+
+        Because:
+        ✔ Serializable is only understood by the JVM.
+
+        JSON/XML libraries are independent and use:
+        Reflection
+        JavaBeans getters/setters
+        Annotations (@JsonProperty, @XmlElement)
+        Type converters
+        These libraries manually map fields → strings.
+
+        Example:
+        //1. Jackson JSON Serialization.
+
+                public class Employee {
+                    private int id;
+                    private String name;
+                }
+
+                // Convert to JSON:
+                ObjectMapper mapper = new ObjectMapper();
+                String json = mapper.writeValueAsString(emp);
+
+            Jackson internally:
+             Gets fields using reflection
+             Reads values
+             Builds a JSON string
+             No need for Serializable.
+
+        // 2. JAXB XML Serialization
+
+              @XmlRootElement
+              class Employee {
+                  public int id;
+                  public String name;
+              }
+
+              JAXBContext ctx = JAXBContext.newInstance(Employee.class);
+              Marshaller marshaller = ctx.createMarshaller();
+              marshaller.marshal(emp, System.out);
+
+            Again:
+            Uses annotations + reflection
+            No Serializable
