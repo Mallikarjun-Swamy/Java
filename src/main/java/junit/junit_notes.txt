@@ -1,0 +1,94 @@
+    What is JUnit?
+
+        JUnit is a Java Unit Testing Framework used to test small units of code (methods or classes).
+        Simple definition:
+                JUnit is a lightweight testing framework that allows developers to write automated tests
+                using annotations and assertions.
+
+        Why companies use JUnit?
+            To validate code correctness after every change.
+            To prevent bugs from reappearing (regression testing).
+            To increase confidence before deployments.
+            To support TDD (Test Driven Development).
+
+        To integrate with CI tools like:
+            Jenkins
+            GitHub Actions
+            GitLab CI
+            Bamboo
+
+
+    JUnit is an open-source testing framework for Java that is used primarily for writing and running unit tests. Its main purpose is to help developers ensure that individual components (units) of their code, like methods or classes, are functioning correctly in isolation.
+
+
+    🧐 What is JUnit and How it Works
+    What is JUnit?
+    JUnit is part of the xUnit family of testing frameworks. It provides a structured, repeatable, and automated way to write tests, which helps in:
+
+    Early Bug Detection: Catching issues as soon as the code is written.
+
+    Automated Regression Testing: Quickly verifying that new code changes don't break existing functionality.
+
+    Test-Driven Development (TDD): It's fundamental to the TDD cycle (Red-Green-Refactor).
+
+    How it Works
+        Test Class: You create a separate Java class (often named *Test.java for the class you are testing)
+        containing your test methods.
+
+        Annotations: You use special annotations (like @Test) to mark which methods should be executed as
+        tests and to define the test lifecycle (setup/teardown).
+
+        Test Runner: A Test Runner (often integrated into IDEs like IntelliJ or Eclipse, or build tools like
+        Maven/Gradle) automatically discovers, executes, and manages the lifecycle of the annotated methods.
+
+        Assertions: Inside the test methods, you use static methods from the Assertions class
+        (e.g., assertEquals(), assertTrue()) to compare the actual output of the code under test with the expected output.
+
+        Reporting: The Test Runner provides a report showing which tests Passed and which Failed, providing
+        immediate and clear feedback.
+
+
+    JUnit 5, also known as JUnit Jupiter, is the latest version. It is composed of three modules:
+    the JUnit Platform (foundation for running tests), JUnit Jupiter (the programming model and extension API for
+    writing tests), and JUnit Vintage (for running older JUnit 3 and 4 tests)
+
+    1. Core Annotations:
+
+        Annotation	                        Description
+        @Test	                Marks a method as a test case.
+        @DisplayName	        Provides a custom, human-readable name for the test class or method that appears in reports.
+        @Disabled	            Used to skip a test class or method during execution. (Like @Ignore in JUnit 4).
+        @ParameterizedTest	    Indicates that a method is a test that will be executed multiple times with different arguments provided by a source (like @ValueSource).
+        @RepeatedTest	        Indicates that a test should be repeated a specified number of times.
+
+    2. Test Lifecycle Annotations (Setup and Teardown)
+
+        Annotation	                Execution Point	                                        Analogy (Real-World)
+        @BeforeAll	    Once, before all test methods in the current class.	            Setting up a lab for the day (e.g., connecting to the database once).
+        @AfterAll	    Once, after all test methods in the current class have run.	    Cleaning up the lab at the end of the day (e.g., closing the database connection).
+        @BeforeEach	    Before each test method.	                                    Setting up a fresh set of equipment for each experiment (e.g., creating a new object instance).
+        @AfterEach	    After each test method.	                                        Disposing of the equipment after each experiment (e.g., resetting state).
+
+
+    3. Assertions
+        Assertions are static methods from the org.junit.jupiter.api.Assertions class used to
+        verify the actual result against the expected result.
+        If an assertion fails, the test method is immediately stopped, and the test is marked as Failed
+
+            Assertion	                                                 Use
+        assertEquals(expected, actual)	                    expected == actual
+        assertNotEquals(expected, actual)	                expected != actual
+        assertTrue(condition)	                            condition is true
+        assertFalse(condition)	                            condition is false
+        assertThrows(Exception.class, executable)	        verify exception thrown
+        assertNull(object)	                                verify null
+        assertNotNull(object)	                            verify not null
+        assertArrayEquals()	                                compare arrays
+        assertIterableEquals()	                            compare lists/sets
+        assertTimeout()	                                    verify method completes within time
+
+        Grouped Assertions
+                assertAll(
+                    () -> assertEquals(10, result),
+                    () -> assertNotNull(result)
+                );
