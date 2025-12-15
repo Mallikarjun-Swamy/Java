@@ -1,13 +1,13 @@
 package patternPrinting.type_04_SpecialPatterns;
 
-public class DimondPattern {
+public class DiamondPattern {
     public static void main(String[] args) {
-        int n=10;
-        int spaces = n-1;
+        int input = 6;
+        int spaces = input-1;
         int stars = 1;
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <=spaces ; j++) {
+        for (int i = 1; i <= input; i++) {
+            for (int j = 1; j <= spaces; j++) {
                 System.out.print(" " + " ");
             }
             for (int j = 1; j <= stars; j++) {
@@ -19,10 +19,10 @@ public class DimondPattern {
         }
 
         spaces = 1;
-        stars = 2*n-3;
+        stars = 2*input-3;
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <=spaces ; j++) {
+        for (int i = 1; i <= input; i++) {
+            for (int j = 1; j <=spaces; j++) {
                 System.out.print(" " + " ");
             }
             for (int j = 1; j <= stars; j++) {

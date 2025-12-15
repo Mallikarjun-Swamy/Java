@@ -26,6 +26,13 @@ public class HoriFlippedRightAngleTriangle {
                     i+96 for if you want same alpha in a row, but increment in next row
 
 
+
+            //Output
+            * * * * *
+            * * * *
+            * * *
+            * *
+            *
      */
 
     public static void main(String[] args) {

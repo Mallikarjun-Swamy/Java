@@ -1,5 +1,14 @@
 package patternPrinting.type_03_Triangle_03;
 
+///*
+//           *
+//         * *
+//       * * *
+//     * * * *
+//   * * * * *
+// */
+
+
 public class VertFlippedRightAngleTriangle {
 
     public static void main(String[] args) {
