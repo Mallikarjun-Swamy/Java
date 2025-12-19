@@ -1,0 +1,28 @@
+CONCRETE CLASSES
+
+    1. ArrayList:-
+           ArrayList is a resizable-array implementation of the List interface. It is the go-to collection for most
+           Java developers due to its predictable performance and ease of use..
+
+        1. What problem the class solves:
+            Standard Java arrays have a fixed size; once created, you cannot change their length.
+            ArrayList solves this by managing an internal array that grows and shrinks dynamically as you
+            add or remove elements
+
+                                                 |--extends--> AbstractCollection(AC) ==implements==>Collection(I)
+                   |--extends--> AbstractList(AC)|
+                   |                             |==implements==> List(I) ==extends==> SequencedCollection(I) ==implements==> Collection(I)
+                   |
+    ArrayList(c)-->|====implements==> List(I) ==extends==> SequencedCollection(I) ==implements==> Collection(I)
+                   |
+                   |====implements==> RandomAccess(MI), Cloneable(MI), java.io.Serializable(MI)
+
+
+
+        RandomAccess: A marker interface indicating it supports fast (constant time) index-based access.
+        Cloneable & Serializable: Allows copying and saving the list state.
+
+        2. Underlying data structure (internals):
+           It uses a simple Object Array (transient Object[] elementData).
+           When you add an element, it checks if the array is full. If it is, it creates a new, larger array
+           and copies the old elements into it using Arrays.copyOf.
