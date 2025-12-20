@@ -1,9 +1,8 @@
-package multiThreading;
+package multiThreading.enhancements;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 
 public class ExplicitLocking {
     public static void main(String[] args) {

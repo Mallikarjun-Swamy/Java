@@ -1,4 +1,4 @@
-package multiThreading;
+package multiThreading.basics;
 
 import java.time.Instant;
 

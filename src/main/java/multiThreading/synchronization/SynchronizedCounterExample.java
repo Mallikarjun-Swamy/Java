@@ -1,9 +1,8 @@
-package multiThreading;
+package multiThreading.synchronization;
 
 public class SynchronizedCounterExample {
 
     public static void main(String[] args) throws InterruptedException {
-
         Counter counter = new Counter();
 
 //        //Anonymous Inner class
@@ -20,7 +19,7 @@ public class SynchronizedCounterExample {
         //or using java 8
 
         Runnable myrunnable1 = () -> {
-            for (int i = 1; i < 1000; i++) {
+            for (int i = 1; i <= 1000; i++) {
                 counter.incrementCount();
             }
         };
@@ -30,7 +29,7 @@ public class SynchronizedCounterExample {
 
         thread2.start();
         thread1.start();
-        System.out.println(counter.getCount());
+
         thread1.join();
         thread2.join();
         System.out.println(counter.getCount());
@@ -40,10 +39,16 @@ public class SynchronizedCounterExample {
 }
 
 class Counter {
-    int count ;
+    int count;
 
 
-    public void incrementCount (){
+ //    If we dont make this method synchrnized, then we will get inconsistent results
+//    public void incrementCount() {
+//        count++;
+//    }
+
+    //Now we will get inconsistent result
+    public synchronized void incrementCount() {
         count++;
     }
 

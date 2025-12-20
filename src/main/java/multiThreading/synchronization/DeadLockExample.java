@@ -1,4 +1,4 @@
-package multiThreading;
+package multiThreading.synchronization;
 
 public class DeadLockExample {
 
@@ -18,19 +18,19 @@ class Pen extends Thread {
     NoteBookSmall noteBookSmall;
     NoteBookBig noteBookBig;
 
-    Pen(NoteBookSmall noteBookSmall, NoteBookBig noteBookBig){
+    Pen(NoteBookSmall noteBookSmall, NoteBookBig noteBookBig) {
         this.noteBookSmall = noteBookSmall;
         this.noteBookBig = noteBookBig;
     }
 
-   public void run (){
-       try {
-           noteBookSmall.write(noteBookBig);
-       } catch (InterruptedException e) {
-           throw new RuntimeException(e);
-       }
-       System.out.println("Now reading BigBook");
-       noteBookBig.read();
+    public void run() {
+        try { //will write in small book, but needs to read big book at the end, that is why we need to pass Bigbook
+            noteBookSmall.write(noteBookBig);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Now reading BigBook");
+        noteBookBig.read();
     }
 
 }
@@ -39,14 +39,14 @@ class Pencil extends Thread {
     NoteBookSmall noteBookSmall;
     NoteBookBig noteBookBig;
 
-    Pencil(NoteBookSmall noteBookSmall, NoteBookBig noteBookBig){
+    Pencil(NoteBookSmall noteBookSmall, NoteBookBig noteBookBig) {
         this.noteBookSmall = noteBookSmall;
         this.noteBookBig = noteBookBig;
     }
 
-    public void run (){
+    public void run() {
         try {
-          noteBookBig.write(noteBookSmall);
+            noteBookBig.write(noteBookSmall); //will write in big book, but needs to read small book at the end, that is why we need to pass small book
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -55,26 +55,27 @@ class Pencil extends Thread {
 
 
 }
+
 class NoteBookSmall {
 
-    synchronized void write (NoteBookBig big) throws InterruptedException {
-        System.out.println("Lock Acquired for writing in SmallBook by " + Thread.currentThread().getName() );
-        System.out.println("Writing in SmallBook by " + Thread.currentThread().getName() );
+    synchronized void write(NoteBookBig big) throws InterruptedException {
+        System.out.println("Lock Acquired for writing in SmallBook by " + Thread.currentThread().getName());
+        System.out.println("Writing in SmallBook by " + Thread.currentThread().getName());
         Thread.sleep(5000);
-        System.out.println("Writing done in SmallBook by " +  Thread.currentThread().getName());
+        System.out.println("Writing done in SmallBook by " + Thread.currentThread().getName());
         System.out.println("Lock yet not released by " + Thread.currentThread().getName());
         System.out.println("Trying to read BigBook by " + Thread.currentThread().getName());
         big.read();
     }
 
-    synchronized void read (){
-         System.out.println("reading done in SmallBook");
+    synchronized void read() {
+        System.out.println("reading done in SmallBook");
     }
 }
 
 class NoteBookBig {
-    synchronized void write (NoteBookSmall small) throws InterruptedException {
-        System.out.println("Lock Acquired for writing in BigBook by " + Thread.currentThread().getName() );
+    synchronized void write(NoteBookSmall small) throws InterruptedException {
+        System.out.println("Lock Acquired for writing in BigBook by " + Thread.currentThread().getName());
         System.out.println("Writing in BigBook by " + Thread.currentThread().getName());
         Thread.sleep(5000);
         System.out.println("Writing done in BigBook by " + Thread.currentThread().getName());
@@ -83,7 +84,7 @@ class NoteBookBig {
         small.read();
     }
 
-    synchronized void read (){
-                System.out.println("reading done in BigBook");
+    synchronized void read() {
+        System.out.println("reading done in BigBook");
     }
 }

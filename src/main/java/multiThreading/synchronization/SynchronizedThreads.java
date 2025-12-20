@@ -1,4 +1,4 @@
-package multiThreading;
+package multiThreading.synchronization;
 
 public class SynchronizedThreads {
 

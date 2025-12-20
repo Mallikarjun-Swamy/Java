@@ -1,4 +1,4 @@
-package multiThreading;
+package multiThreading.basics;
 
 public class TwoThreads {
     public static void main(String[] args) {
