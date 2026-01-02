@@ -1,0 +1,1043 @@
+Core Java 8 Features (Complete Roadmap)
+
+1. Lambda Expressions
+2. Functional Interfaces
+3. Default & Static Methods in Interface
+4. Method References
+5. Stream API
+6. Optional Class
+7. New Date & Time API
+8. forEach()
+9. Collectors
+10. Parallel Streams
+11. Nashorn JS Engine (conceptual)
+
+1. Lambda Expressions:
+        It is an anonymous function that doesn't have a name, a return type, or an access modifier.
+        A Lambda Expression is a short block of code which takes in parameters and returns a value.
+
+        syntax:
+        (parameters) -> expression or (parameters) -> { statements; }
+
+        1. Why use them? (The "Before vs. After"):
+            Before Java 8, if you wanted to pass a piece of logic, you had to wrap it in an Anonymous Inner Class.
+            This resulted in "Vertical Problem"—too much boilerplate code for a simple task.
+
+                The Old Way (Anonymous Inner Class):-----
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("Thread is running...");
+                        }
+                    };
+
+                The Java 8 Way (Lambda):---------
+                     Runnable r = () -> System.out.println("Thread is running...");
+
+
+        2. Where can you use Lambdas?
+            A Lambda expression can only be used where the program expects a Functional Interface
+            (an interface with exactly one abstract method).
+
+            Examples of common Functional Interfaces:
+               1. ActionListener (used in UI)
+               2. Comparator (used for sorting)
+               3. Runnable (used for threads)
+               4. Predicate (used for filtering)
+
+        3. Real-Life Examples in Applications:
+
+            A. Sorting Data (E-commerce App):
+                Imagine you have a list of Product objects and you want to sort them by price.
+
+                    // Pre-Java 8: Bulky Comparator
+                    Collections.sort(products, new Comparator<Product>() {
+                        public int compare(Product p1, Product p2) {
+                            return p1.getPrice().compareTo(p2.getPrice());
+                        }
+                    });
+
+                    // Java 8: Clean and Readable
+                    products.sort((p1, p2) -> p1.getPrice().compareTo(p2.getPrice()));
+
+            B. Filtering Collections (Banking App):
+                    Suppose you need to find all transactions in a list that are over $10,000.
+
+                        / Using Lambda with the Stream API
+                        List<Transaction> highValue = transactions.stream()
+                                                                  .filter(t -> t.getAmount() > 10000)
+                                                                  .collect(Collectors.toList());
+
+            C. Thread Execution (Background Tasks):
+                    Running a heavy task in the background without cluttering the code.
+
+                    new Thread(() -> {
+                        System.out.println("Downloading file in background...");
+                        // heavy logic here
+                    }).start();
+
+        4. Key Characteristics:
+            1. Type Inference: You don't usually need to declare the type of the parameters;
+               the compiler "infers" it from the context.
+
+            2. No return keyword: If your body has a single expression, Java automatically returns it.
+
+            3. Optional Parentheses: If there is only one parameter, you can omit the ().
+               (e.g., name -> System.out.println(name)).
+
+        5. Critical rules for Lambda expressions:
+
+            1.  The "this" Context Rule or The "No Instance" Rule (Inside the Lambda)
+                In an Anonymous Inner Class, the keyword this refers to the inner class object itself.
+
+                In a Lambda Expression, the keyword this refers to the enclosing class (the class where the lambda is written).
+                A Lambda cannot have its own state.
+                    Rule: You cannot declare instance variables inside a lambda to keep track of state between calls.
+
+                Rule: Lambdas are lexically scoped. They do not introduce a new level of scoping.
+                Application: You cannot use this to call a method defined "inside" the lambda, because you cannot
+                define methods inside a lambda.
+
+            2.  Accessing Variables (The "Outer" Rule)
+                A Lambda can reach out and "grab" variables from the class it is sitting in.
+
+                   A. Instance Variables (Non-Static)
+                       Rule: A Lambda can read and modify instance variables (fields) of the outer class.
+                       Why? The Lambda has a reference to the outer class object (via this).
+                            Since instance variables live on the Heap, they are safe to modify.
+
+                   B. Static Variables
+                       Rule: A Lambda can read and modify static variables of the outer class.
+                       Why? Static variables belong to the class itself and are always accessible globally.
+
+                   C. Local Variables (The Restriction)
+                       Rule: A Lambda can read local variables (variables inside the method),but cannot modify them.
+                             They must be final or "effectively final" (meaning you don't change their value after assignment).
+
+                       Why? Local variables live on the Stack. If a Lambda runs in a different thread after the
+                            method finishes, that stack frame is gone. To prevent crashes, Java makes a copy of
+                            the variable for the Lambda. If you changed the original, the copy would be out of sync.
+
+
+            3. Accessing Methods (Instance vs. Static)
+                Just like variables, Lambdas have specific rules for calling methods:
+
+                1. Outer Instance Methods: You can call any instance method of the enclosing class.
+                2. Outer Static Methods: You can call any static method of the enclosing class.
+                3. No "Internal" Methods: You cannot define a new method inside a Lambda.
+                   A Lambda is strictly the implementation of the one method defined in the Functional Interface.
+
+            4. Parameter Rules (Type Inference)
+               The Java compiler is smart enough to guess the data types of your parameters based on the Functional Interface.
+
+               Parentheses Rule: * No parameters: () -> System.out.println("Hi") (Must use parentheses).
+                                   One parameter: s -> System.out.println(s) (Parentheses optional).
+                                   Two+ parameters: (a, b) -> a + b (Must use parentheses).
+
+                Explicit Types: You can declare types if it makes it clearer
+                                but you must do it for all parameters or none: (int a, int b) -> a + b.
+
+            5. Exception Handling Rules:
+                A Lambda expression cannot throw "Checked Exceptions" unless the Functional Interface's
+                abstract method also declares those exceptions.
+
+                Rule: If you are using a standard interface like Runnable,
+                      which doesn't throw exceptions, you must use a try-catch block inside the lambda body.
+
+                      example:
+
+                                Runnable r = () -> {
+                                    Thread.sleep(1000); // Compilation Error: Unhandled exception
+                                };
+
+                                // This IS required
+                                Runnable r = () -> {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                };
+
+            6. Return Statement Rules:
+                Rule 1 : If the body has only one expression, you don't need the return keyword or curly braces.
+                         The result is returned automatically.
+
+                Rule 2 : If you use curly braces { }, you must use the return keyword (if the method isn't void).
+
+                        // Automatic return
+                        BinaryOperator<Integer> add = (a, b) -> a + b;
+
+                        // Manual return (required because of braces)
+                        BinaryOperator<Integer> addLong = (a, b) -> {
+                            return a + b;
+                        };
+
+            7. Shadowing Rule
+               Rule: Lambdas do not allow Shadowing.
+                    In an Anonymous Inner Class, you can declare a variable with the same name as an outer local variable.
+                    In a Lambda, you cannot.
+                    Because the Lambda scope is the same as the method scope, declaring int x inside a lambda when
+                    int x already exists in the method will cause a "Duplicate local variable" error.
+
+                    1. Shadowing in Anonymous Inner Classes (Allowed)
+                            public class ShadowTest {
+                                public void demonstrate() {
+                                    int x = 10; // Local variable in method
+
+                                    Runnable r = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            int x = 50; // SHADOWING: This is allowed in Anonymous Inner Classes
+                                            System.out.println("Inner Class x: " + x); // Prints 50
+                                        }
+                                    };
+                                    r.run();
+                                    System.out.println("Method x: " + x); // Prints 10
+                                }
+                            }
+
+                    2. Shadowing in Lambda Expressions (Forbidden)
+
+                            public void demonstrateLambda() {
+                                int x = 10;
+
+                                // COMPILER ERROR: Variable 'x' is already defined in the scope
+                                Runnable r = () -> {
+                                    int x = 50;
+                                    System.out.println(x);
+                                };
+                            }
+
+            Summary Coding Example: The Access Rules
+
+                        public class SpecialDiscounter {
+                            static double tax = 0.05;    // Static variable
+                            double seasonalDiscount = 10.0; // Instance variable
+
+                            public void processOrder(double price) {
+                                double coupon = 5.0; // Local variable (Effectively Final)
+
+                                // Lambda Expression
+                                DoubleUnaryOperator calculator = (input) -> {
+                                    // 1. Access & Modify Static: ALLOWED
+                                    tax = 0.06;
+
+                                    // 2. Access & Modify Instance: ALLOWED
+                                    seasonalDiscount = 15.0;
+
+                                    // 3. Access Local: ALLOWED (if final)
+                                    // coupon = 10.0; // ERROR: Would break 'effectively final' rule
+
+                                    return input + (input * tax) - seasonalDiscount - coupon;
+                                };
+
+                                System.out.println("Final Price: " + calculator.applyAsDouble(price));
+                            }
+                        }
+
+
+2. Functional Interfaces:
+
+        A Functional Interface is the backbone of Functional Programming in Java 8.
+
+        It is defined as an interface that contains exactly one abstract method.
+        or
+        A interface containing single abstract method and any number of static, default and Private methods.
+
+        Java compiler to treat a Lambda expression as an implementation of functional interface.
+        (lambda functions converted to private methods after compilation in the same class in which it is implemented,
+         hence there will not be any .class file)
+
+         The Annotation: @FunctionalInterface
+         This is an informative annotation. It isn’t mandatory, but using it is a "best practice" because it tells the
+         compiler to throw an error if you accidentally add a second abstract method, ensuring the interface
+         remains functional.
+
+         The Four Pillars of Predefined Functional Interfaces
+         Java 8 introduced the java.util.function package, which contains over 40 interfaces.
+         However, almost all of them are variations of these four core types:
+
+         1. Predicate <T> (The Checker):
+            Abstract Method: boolean test(T t)
+            Purpose: Takes an object and returns a boolean. Used for filtering or matching.
+            Real-Life Example: Checking if a bank transaction is "Suspicious" (amount > $10,000).
+                                 Predicate<Integer> isLarge = (amt) -> amt > 10000;
+
+
+            Predicate Variations (Boolean tests):  Used for filtering, validation, and conditional checks.
+
+            Interface	               (Input) Type 	                Method
+            Predicate<T>	            Object	            boolean test(T t)
+            BiPredicate<T, U>	        2 Objects	        boolean test(T t, U u)
+            IntPredicate	            Primitive	        boolean test(int value)
+            LongPredicate	            Primitive	        boolean test(long value)
+            DoublePredicate	            Primitive	        boolean test(double value)
+
+
+
+         2. Function <T, R> (The Transformer):
+            Abstract Method: R apply(T t)
+            Purpose: Takes an input of type T and returns a result of type R. Used for transforming data.
+            Real-Life Example: Converting a User object into a UserDTO (Data Transfer Object) for a web response
+                Function<String, Integer> lengthFunc = (s) -> s.length();
+
+
+            Function Variations (Transforms Input to Output):
+                This is the largest group because it covers conversions between different types.
+
+                1. Base & Bi-Functions:
+                      Function<T, R> : R apply(T t)
+                      BiFunction<T, U, R> : R apply(T t, U u)
+
+
+                2. Specialized Primitive Input Types
+                      IntFunction<R>: R apply(int value)
+                      LongFunction<R>: R apply(long value)
+                      DoubleFunction<R>: R apply(double value)
+
+                3. Specialized Primitive Return Types:
+                        //single function
+                       ToIntFunction<T>: int applyAsInt(T t)
+                       ToLongFunction<T>: long applyAsLong(T t)
+                       ToDoubleFunction<T>: double applyAsDouble(T t)
+
+                        //Bi Function
+                       ToIntBiFunction<T, U>: int applyAsInt(T t, U u)
+                       ToLongBiFunction<T, U>: long applyAsLong(T t, U u)
+                       ToDoubleBiFunction<T, U>: double applyAsDouble(T t, U u)
+
+                4. Primitive-to-Primitive Conversions:
+                       IntToLongFunction: long applyAsLong(int value)
+                       IntToDoubleFunction: double applyAsDouble(int value)
+                       LongToIntFunction: int applyAsInt(long value)
+                       LongToDoubleFunction: double applyAsDouble(long value)
+                       DoubleToIntFunction: int applyAsInt(double value)
+                       DoubleToLongFunction: long applyAsLong(double value)
+
+                5. Operator Variations (Input and Output types are the same):
+                    Operators are a special case of Functions where you don't change the data type, just the value (e.g., mathematical operations).
+
+                        Interface	                Type	                    Method
+                        UnaryOperator<T>	        1 Object	            T apply(T t)
+                        BinaryOperator<T>	        2 Objects	            T apply(T t1, T t2)
+                        IntUnaryOperator	        1 int	                int applyAsInt(int operand)
+                        IntBinaryOperator	        2 ints	                int applyAsInt(int left, int right)
+                        LongUnaryOperator	        1 long	                long applyAsLong(long operand)
+                        LongBinaryOperator	        2 longs	                long applyAsLong(long left, long right)
+                        DoubleUnaryOperator	        1 double	            double applyAsDouble(double operand)
+                        DoubleBinaryOperator	    2 doubles	            double applyAsDouble(double left, double right)
+
+
+         3. Consumer <T> (The Doer):
+            Abstract Method: void accept(T t)
+            Purpose: Takes an input but returns nothing. It "consumes" the data (e.g., printing, saving to a DB).
+            Real-Life Example: Sending a notification email to a user.
+                Consumer<String> printer = (msg) -> System.out.println(msg);
+
+
+            Consumer Variations (Accepts but returns void): Used for actions like printing, saving, or updating state.
+
+                Interface	                    Type	                    Method
+                Consumer<T>	                    Object	                void accept(T t)
+                BiConsumer<T, U>	            2 Objects	            void accept(T t, U u)
+                IntConsumer	                    Primitive	            void accept(int value)
+                LongConsumer	                Primitive	            void accept(long value)
+                DoubleConsumer	                Primitive	            void accept(double value)
+                ObjIntConsumer<T>	            Object + int	        void accept(T t, int value)
+                ObjLongConsumer<T>	            Object + long	        void accept(T t, long value)
+                ObjDoubleConsumer<T>	        Object + double	        void accept(T t, double value)
+
+         4. Supplier <T> (The Giver)
+            Abstract Method: T get()
+            Purpose: Takes no arguments and returns an object of type T. Used for lazy generation of values.
+            Real-Life Example: Generating a unique Session ID or a random OTP.
+                Supplier<Double> randomGen = () -> (Double)(Math.random()*10)+1;
+
+
+            Supplier Variations (Returns something, accepts nothing):
+                Used for lazy initialization, factory methods, or generating values.
+
+                Interface	                    Type	                Method
+                Supplier<T>	                    Object	            T get()
+                BooleanSupplier	                Primitive	        boolean getAsBoolean()
+                IntSupplier	                    Primitive	        int getAsInt()
+                LongSupplier	                Primitive	        long getAsLong()
+                DoubleSupplier	                Primitive	        double getAsDouble()
+
+
+
+         Summary Checklist for These Interfaces:
+
+             Need to check a condition? Use Predicate.
+             Need to convert A to B? Use Function.
+             Need to produce a value from thin air? Use Supplier.
+             Need to execute an action (void)? Use Consumer.
+             Need to modify a value but keep the same type? Use Operator.
+
+
+
+3. Default & Static Methods in Interface:
+
+    Java 8 introduced Default and Static methods to allow interfaces to grow without breaking old code.
+    This is exactly how the stream() method was added to the Collection interface without breaking millions of existing
+    Java apps.
+
+    1. Default Methods
+    A Default Method is a method in an interface that has a body. It is marked with the default keyword.
+
+        The Problem: If you had an interface Vehicle used by 1000 classes, and you wanted to add a startAlarm() method,
+         you would have to manually implement it in all 1000 classes.
+
+        The Solution: Create a default implementation in the interface. All 1000 classes "inherit" it automatically.
+
+        Real-Life Analogy: The Smartphone Update
+        Think of an Interface as a Smartphone OS. When the manufacturer (Java) pushes an update with a new "Dark Mode"
+        feature (Default Method), your phone gets it automatically without you having to rebuild the phone from scratch.
+
+            interface Logger {
+                void log(String message); // Abstract method (Must be implemented)
+
+                // Default method (Optional to override)
+                default void logError(String message) {
+                    System.err.println("CRITICAL ERROR: " + message);
+                }
+            }
+
+            class ConsoleLogger implements Logger {
+                @Override
+                public void log(String message) {
+                    System.out.println("Log: " + message);
+                }
+                // No need to implement logError, it's already there!
+            }
+
+        The "Diamond Problem" (Conflict Resolution)
+            What happens if a class implements two interfaces, and both have the same default method?
+            This is the "Diamond Problem."
+
+            Rule: The compiler will throw an error. You must override the method in your class and manually
+                  specify which one to use.
+
+                  interface InterfaceA {
+                      default void show() { System.out.println("From A"); }
+                  }
+
+                  interface InterfaceB {
+                      default void show() { System.out.println("From B"); }
+                  }
+
+                  class MyClass implements InterfaceA, InterfaceB {
+                      @Override
+                      public void show() {
+                          // Option 1: Provide own logic
+                          // Option 2: Choose one specifically:
+                          InterfaceA.super.show();
+                      }
+                  }
+
+            Complete Context: Collection and Streams
+            This is the most important "Real Application" of default methods. Because of this feature, the
+            Java architects were able to add the following to the existing Iterable and Collection interfaces:
+
+            1. forEach(Consumer action): A default method in Iterable.
+            2. stream(): A default method in Collection.
+            3. removeIf(Predicate filter): A default method in Collection
+
+
+
+    2. Static Methods
+        A Static Method in an interface is exactly like a static method in a class. It belongs to the Interface class
+        and cannot be overridden by implementing classes.
+
+        Purpose: To provide utility or helper methods that are relevant to the interface.
+        Usage: You call it using the Interface name: InterfaceName.methodName().
+
+                    interface Validator {
+                        boolean isValid(String data);
+
+                        // Static helper method
+                        static boolean isEmpty(String str) {
+                            return str == null || str.isEmpty();
+                        }
+                    }
+
+                    // Usage
+                    if (Validator.isEmpty("some input")) {
+                        System.out.println("Input is empty!");
+                    }
+
+
+5. Stream API:
+
+   1. What is a Stream?
+      A Stream is a sequence of elements supporting sequential and parallel aggregate operations.
+        * It is not a data structure (it doesn't store elements like a List).
+        * It is a view of your data that allows you to perform computations.
+        * Think of it as a pipe connected to a tank (Collection). The water (data) flows through the
+          pipe, where you can add filters or mixers, but the pipe itself doesn't "hold" the water.
+
+   2. Where is it?
+      The Stream API resides in the java.util.stream package. The most common way to get a stream is through
+      the Collection interface, which now has a default method called stream()
+
+   3. Why was it introduced?
+      Before Java 8, if you wanted to process a list (e.g., find the sum of expensive products), you had to use
+      Imperative Programming:
+
+          1.Create a temporary list or counter.
+          2.Start a for loop
+          3.Use an if condition.
+          4.Manually update the counter.
+
+      The Problem with the Old Way:
+         Boilerplate: Too much code for simple tasks.
+         Hard to Parallelize: To use multiple CPU cores, you had to write complex multi-threaded code.
+         Error-Prone: Managing "how" to iterate (indices, counters) often leads to bugs.
+
+   4. How does it work? (The Three Steps)
+       A stream works through a Pipeline pattern. Imagine a factory assembly line:
+
+       1. Creation (The Source): You turn a Collection, Array, or I/O channel into a Stream.
+       2. Configuration (Intermediate Operations): You set up the "stations" on the assembly line
+          (filter this, transform that). These are Lazy—nothing moves yet.
+       3. Execution (Terminal Operation): You "turn on the power." Data flows through all stations and
+          results in a final package (a List, a number, or a printout).
+
+
+   5. What problems does it solve?
+       Declarative Code: You describe what you want (e.g., "Give me all red cars") rather than
+       how to do it (loops and if-else).
+       Parallelism for Free: By simply changing .stream() to .parallelStream(), Java splits the work across all
+       available CPU cores.
+       Readability: Chaining methods like .filter().map().collect() reads like a sentence.
+
+   6.  Key Characteristics and Rules
+
+        Characteristic	                 Explanation
+        No Storage	                     A stream does not store data. It just moves data from a source.
+        Immutable Source	             A stream does not modify the original collection. It produces a new result.
+        Laziness                         Intermediate operations are not executed until a Terminal operation is called.
+                                         This optimizes performance.
+        Consumable                       A stream can be traversed only once. Once the "water" has flowed through the
+                                         pipe, the pipe is empty.
+        Internal Iteration               You don't use for or while. The Stream itself handles the looping behind the scenes.
+
+
+   Intermediate operations:
+        1. filter(Predicate<T>):
+            Concept: The Sieve. It tests each element against a condition. If the condition is true, the element
+                     passes to the next stage of the pipe.
+                     Real-Life Example: A Security Gate checking for restricted items.
+
+             example:
+                     import java.util.stream.Stream;
+
+                     public class FilterDeepDive {
+                         public static void main(String[] args) {
+                             Stream<String> users = Stream.of("Admin_Bob", "Guest_John", "Admin_Alice", "Guest_Ray");
+
+                             // Goal: Keep only users with Admin privileges
+                             users.filter(user -> user.startsWith("Admin"))
+                                  .forEach(System.out::println);
+
+                             // Output: Admin_Bob, Admin_Alice
+                         }
+                     }
+
+        2. map(Function<T, R>):
+            Concept: The Transformer. It applies a function to each element, changing its value or its entire data type
+                     (e.g., converting a String to an Integer).
+                     Real-Life Example: A Currency Converter at an airport.
+
+             example:
+                        import java.util.stream.Stream;
+
+                        public class MapDeepDive {
+                            public static void main(String[] args) {
+                                Stream<String> numbersAsText = Stream.of("10", "20", "30");
+
+                                // Goal: Convert String stream to Integer stream and double the value
+                                numbersAsText.map(text -> Integer.parseInt(text) * 2)
+                                             .forEach(System.out::println);
+
+                                // Output: 20, 40, 60
+                            }
+                        }
+
+        3. flatMap(Function<T, Stream<R>>):
+            Concept: The Flattener. If your stream contains "containers" (like Lists or Arrays), flatMap opens those
+                     containers and pours all the contents into a single, flat stream.
+                     Real-Life Example: Taking multiple boxes of eggs and cracking them all into one single bowl.
+
+        example:
+                    import java.util.*;
+                    import java.util.stream.Stream;
+
+                    public class FlatMapDeepDive {
+                        public static void main(String[] args) {
+                            List<String> teamA = Arrays.asList("Alice", "Bob");
+                            List<String> teamB = Arrays.asList("Charlie", "David");
+
+                            Stream<List<String>> teamsStream = Stream.of(teamA, teamB);
+
+                            // Goal: Get a single list of all players
+                            teamsStream.flatMap(list -> list.stream())
+                                       .forEach(System.out::println);
+
+                            // Output: Alice, Bob, Charlie, David
+                        }
+                    }
+
+        4. distinct():
+            Concept: The Unique Filter. It removes duplicate elements using the hashCode() and equals() methods.
+                     Real-Life Example: A Survey where you want to see the list of unique cities represented,
+                     ignoring repeats.
+
+            example:
+
+                        import java.util.stream.Stream;
+
+                        public class DistinctDeepDive {
+                            public static void main(String[] args) {
+                                Stream<String> cities = Stream.of("Pune", "Mumbai", "Pune", "Delhi", "Mumbai");
+
+                                cities.distinct()
+                                      .forEach(System.out::println);
+
+                                // Output: Pune, Mumbai, Delhi
+                            }
+                        }
+
+            5. sorted() & sorted(Comparator<T>)
+                   Concept: The Organizer. It sorts elements.
+                   Note: This is a Stateful operation; the stream must "see" all elements before it can sort them.
+                   Real-Life Example: Sorting Exam Results from highest to lowest.
+
+                   example:
+                                import java.util.*;
+                                import java.util.stream.Stream;
+
+                                public class SortedDeepDive {
+                                    public static void main(String[] args) {
+                                        Stream<Integer> scores = Stream.of(85, 99, 72, 90);
+
+                                        // Goal: Sort in descending order
+                                        scores.sorted(Comparator.reverseOrder())
+                                              .forEach(System.out::println);
+
+                                        // Output: 99, 90, 85, 72
+                                    }
+                                }
+
+            6. limit(long n) :
+                Concept: The Clipper. It truncates the stream so that it contains no more than n elements.
+                         It is "Short-circuiting."
+                         Real-Life Example: A "Top 3" Leaderboard display.
+
+                example :
+                            import java.util.stream.Stream;
+
+                            public class LimitDeepDive {
+                                public static void main(String[] args) {
+                                    Stream<String> names = Stream.of("John", "Jane", "Jack", "Jill", "Joe");
+
+                                    // Goal: Just take the first two
+                                    names.limit(2)
+                                         .forEach(System.out::println);
+
+                                    // Output: John, Jane
+                                }
+                            }
+
+            7.  skip(long n):
+                Concept: The Offset. It discards the first n elements and lets the rest pass.
+                         Real-Life Example: Pagination in a website (skipping the first 10 results to show the second page).
+
+
+                            import java.util.stream.Stream;
+
+                            public class SkipDeepDive {
+                                public static void main(String[] args) {
+                                    Stream<Integer> pages = Stream.of(1, 2, 3, 4, 5);
+
+                                    // Goal: Skip the first 3 pages
+                                    pages.skip(3)
+                                         .forEach(System.out::println);
+
+                                    // Output: 4, 5
+                                }
+                            }
+
+            8. peek(Consumer<T>):
+                Concept: The Observer. It allows you to "peek" at the elements as they flow through the pipeline
+                         without changing them. It is mainly used for debugging.
+                         Real-Life Example: A CCTV camera watching an assembly line.
+
+                         import java.util.stream.Stream;
+
+                         public class PeekDeepDive {
+                             public static void main(String[] args) {
+                                 Stream.of("Apple", "Banana")
+                                       .filter(s -> s.length() > 5)
+                                       .peek(s -> System.out.println("Filtered value: " + s)) // Debugging
+                                       .map(String::toUpperCase)
+                                       .forEach(System.out::println);
+                             }
+                         }
+
+           9. unordered()
+                The Concept: The Performance Relaxer. By default, Java tries to maintain the order of your list.
+                             However, checking order takes time, especially in Parallel Processing.
+                             unordered() tells Java, "I don't care about the sequence, just process the data as fast
+                             as possible."
+
+                Real-Life Application: Processing millions of non-sequential sensor readings where the order of arrival
+                                       doesn't matter.
+
+                           import java.util.Arrays;
+                           import java.util.List;
+
+                           public class UnorderedDeepDive {
+                               public static void main(String[] args) {
+                                   List<Integer> largeData = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
+
+                                   // Concept: Allow Java to ignore order to optimize parallel performance
+                                   largeData.parallelStream()
+                                            .unordered()
+                                            .distinct()
+                                            .forEach(System.out::print);
+                               }
+                           }
+
+           10. boxed()
+                The Concept: This is the Reverse Bridge. If you have an IntStream (primitives) and you need to convert
+                it back to a Stream<Integer> (objects)
+                —for example, to save them into a List<Integer>—you use boxed().
+                It wraps each primitive back into its object shell.
+                Real-Life Application: Generating a range of numbers and storing them in a List.
+
+                         import java.util.List;
+                         import java.util.stream.IntStream;
+                         import java.util.stream.Collectors;
+
+                         public class BoxedDeepDive {
+                             public static void main(String[] args) {
+                                 // Create a primitive range
+                                 List<Integer> numberList = IntStream.rangeClosed(1, 5) // IntStream
+                                                                     .boxed()          // Stream<Integer>
+                                                                     .collect(Collectors.toList());
+
+                                 System.out.println("Collected List: " + numberList);
+                             }
+                         }
+
+           11. mapToInt() / mapToDouble() / mapToLong():
+
+                The Concept: These are Bridge methods. Java Objects (Integer, Double) take up a lot of memory.
+                            These methods extract the raw numeric value from an object and move it into a Primitive Stream.
+                            This allows for high-speed mathematical operations without "Autoboxing" overhead.
+
+                Real-Life Application: Calculating the Total Weight of items in a shipping container.
+
+
+                          import java.util.Arrays;
+                          import java.util.List;
+
+                          public class MapToPrimitiveDeepDive {
+                              public static void main(String[] args) {
+                                  List<String> inventory = Arrays.asList("Laptop", "Mouse", "Keyboard");
+
+                                  // Concept: Extract the length of each string as a raw 'int'
+                                  int totalChars = inventory.stream()
+                                                            .mapToInt(s -> s.length()) // Switch to IntStream
+                                                            .sum();                    // Optimized primitive sum
+
+                                  System.out.println("Total inventory character count: " + totalChars);
+                              }
+                          }
+
+          12. asLongStream() / asDoubleStream()
+                  These are found on IntStream or LongStream. They provide an efficient way to "widen" the primitive types
+                  (e.g., from int to double) without having to manually map them.
+
+                        import java.util.stream.IntStream;
+
+                        public class WideningExample {
+                            public static void main(String[] args) {
+                                IntStream.of(1, 2, 3)
+                                         .asDoubleStream() // Efficiently widens to double
+                                         .forEach(d -> System.out.println("Value: " + d));
+                            }
+                        }
+
+          13. takeWhile(Predicate<T>) — (Introduced in Java 9)
+              The Concept: The Smart Stop. Unlike filter (which checks every single element in the list), takeWhile
+                           stops the entire stream the very first time the condition becomes false.
+                           It assumes the stream is somewhat ordered and takes elements only while they match.
+
+              Real-Life Application: Taking all "Urgent" tasks from a list sorted by priority. Once you hit a "Low"
+                                     priority task, you stop looking
+
+                                     import java.util.stream.Stream;
+                                     import java.util.List;
+
+                                     public class TakeWhileExample {
+                                         public static void main(String[] args) {
+                                             List<Integer> numbers = List.of(2, 4, 6, 7, 8, 10);
+
+                                             // Concept: Take numbers AS LONG AS they are even.
+                                             // Once it hits '7', it stops completely, even though '8' and '10' are even.
+                                             numbers.stream()
+                                                    .takeWhile(n -> n % 2 == 0)
+                                                    .forEach(System.out::println);
+
+                                             // Output: 2, 4, 6
+                                         }
+                                     }
+
+          14. dropWhile(Predicate<T>) — (Introduced in Java 9)
+              The Concept: The Delayed Start. This is the opposite of takeWhile. It discards elements as long as the
+                           condition is true. The moment it finds an element that is false, it "opens the gate"
+                           and lets that element and everything after it pass through without checking them again.
+
+              Real-Life Application: Skipping all "Old" entries in a log file until you reach the "New" entries, then
+                                     keeping everything from that point forward.
+
+                                     import java.util.List;
+
+                                     public class DropWhileExample {
+                                         public static void main(String[] args) {
+                                             List<Integer> numbers = List.of(2, 4, 6, 7, 8, 10);
+
+                                             // Concept: Drop (ignore) numbers until you find an odd one.
+                                             // Once '7' is found, the gate stays open for 8 and 10.
+                                             numbers.stream()
+                                                    .dropWhile(n -> n % 2 == 0)
+                                                    .forEach(System.out::println);
+
+                                             // Output: 7, 8, 10
+                                         }
+                                     }
+
+
+              A) flatMapToInt() / flatMapToDouble() / flatMapToLong()
+                 The Concept: The Numeric Flattener. This is used when you are starting with an Object Stream
+                 (like a List of Orders) but each object contains a Primitive Array or a Numeric Collection.
+                 It extracts those numbers and "flattens" them into a single high-performance primitive stream.
+                 Real-Life Application: Extracting raw sensor readings from different "Batch" objects into one long timeline of data.
+
+                        import java.util.*;
+                        import java.util.stream.IntStream;
+
+                        public class FlatMapToPrimitiveDeepDive {
+                            public static void main(String[] args) {
+                                List<int[]> dataBatches = Arrays.asList(
+                                    new int[]{10, 20},
+                                    new int[]{30, 40, 50}
+                                );
+
+                                // Concept: Flatten multiple int arrays into one single IntStream
+                                IntStream allNumbers = dataBatches.stream()
+                                                                  .flatMapToInt(array -> Arrays.stream(array));
+
+                                System.out.println("Sum of all batches: " + allNumbers.sum());
+                            }
+                        }
+
+
+          15. mapMulti(BiConsumer<T, Consumer<R>>) — (Introduced in Java 16)
+              The Concept: The Efficient Transformer. This is a more memory-efficient version of flatMap.
+                           In flatMap, you have to create a new Stream object for every element you transform.
+                           In mapMulti, you simply "push" the results into a consumer.
+                           It’s better for performance when replacing one element with a small number of elements.
+
+              Real-Life Application: Expanding a string into its individual characters only if they are digits.
+
+                                import java.util.List;
+
+                                public class MapMultiExample {
+                                    public static void main(String[] args) {
+                                        List<String> data = List.of("A1", "B2");
+
+                                        // Concept: For each string, "push" multiple results into the stream
+                                        data.stream()
+                                            .<Character>mapMulti((str, consumer) -> {
+                                                for (char c : str.toCharArray()) {
+                                                    consumer.accept(c); // Manually pushing elements
+                                                }
+                                            })
+                                            .forEach(System.out::println);
+
+                                        // Output: A, 1, B, 2
+                                    }
+                                }
+
+
+
+              A) mapMultiToDouble() / mapMultiToInt() / mapMultiToLong() (Java 16+)
+                 The Concept: The Optimized Primitive Transformer. Just like mapMulti replaces flatMap for objects,
+                 these replace flatMapTo... for primitives. Instead of creating a new Stream object for every element
+                 (which is expensive), you use a "pusher" to put values directly into the pipeline.
+
+                 Real-Life Application: Splitting a list of Dimensions (String like "10x20") into individual primitive integers.
+
+
+                            import java.util.List;
+                            import java.util.stream.IntStream;
+
+                            public class MapMultiToPrimitiveDeepDive {
+                                public static void main(String[] args) {
+                                    List<String> dimensions = List.of("10x20", "30x40");
+
+                                    // Concept: Push individual dimensions into the stream as primitives
+                                    IntStream lengths = dimensions.stream()
+                                        .mapMultiToInt((s, consumer) -> {
+                                            for (String part : s.split("x")) {
+                                                consumer.accept(Integer.parseInt(part));
+                                            }
+                                        });
+
+                                    lengths.forEach(System.out::println); // 10, 20, 30, 40
+                                }
+                            }
+
+          16. toList() — (The Java 16 Shortcut)
+              The Concept: The Direct Exit. Before Java 16, you had to write .collect(Collectors.toList()),
+                           which is quite long. Java 16 added .toList() directly to the Stream interface.
+                           Note: The list returned by .toList() is unmodifiable (immutable)
+
+                                import java.util.List;
+
+                                public class ToListExample {
+                                    public static void main(String[] args) {
+                                        List<String> names = List.of("Anna", "Bob", "Charlie");
+
+                                        // Concept: Modern, shorter way to finish a stream
+                                        List<String> result = names.stream()
+                                                                   .filter(n -> n.startsWith("A"))
+                                                                   .toList(); // No need for Collectors!
+
+                                        System.out.println(result);
+                                    }
+                                }
+
+
+          17. parallel():
+                The Concept: The Multi-Threader. This is a "mode-switching" intermediate operation.
+                             It tells the JVM to split the stream into multiple chunks and process them across
+                             all available CPU cores using the ForkJoinPool.
+
+                This is an intermediate operation on the Stream interface. You use it when you have an existing
+                sequential stream and you want to switch it into parallel mode halfway through the pipeline
+
+                Real-Life Application: Processing 10 million financial records where each calculation is independent.
+
+                            import java.util.stream.LongStream;
+
+                            public class ParallelDeepDive {
+                                public static void main(String[] args) {
+                                    // Concept: Switch to parallel mode for heavy computation
+                                    long sum = LongStream.rangeClosed(1, 1_000_000)
+                                                         .parallel()
+                                                         .sum();
+                                    System.out.println("Total: " + sum);
+                                }
+                            }
+
+        18. parallelStream(): The Source Entry (same as parallel(), but applied to collection not existing stream)
+            Concept: This is a method on the Collection interface (like List or Set). It creates a parallel stream from
+                      the very start.
+                      You use it when you know from the beginning that you want the entire process to run in parallel.
+
+            Real-Life Example: Loading 1 million records from a database and wanting to start processing them on all cores immediately.
+
+                            import java.util.*;
+
+                            public class ParallelStreamExample {
+                                public static void main(String[] args) {
+                                    List<String> data = Arrays.asList("A", "B", "C", "D");
+
+                                    // The stream is born parallel
+                                    data.parallelStream()
+                                        .forEach(s -> System.out.println(s + " on " + Thread.currentThread().getName()));
+                                }
+                            }
+
+
+        Key Differences between parallel() and parallelStream()
+
+            Feature	             parallelStream()	                              parallel()
+            Found In	        Collection Interface (List, Set)	            Stream Interface
+            When to use	        At the very beginning of the pipeline.	        To convert an existing stream to parallel.
+            Logic	            Creates a new parallel stream.	                Changes the "mode" of an existing stream.
+            Return              Type	Stream<T> (already parallel) 	        Stream<T> (converted to parallel)
+
+
+        19. sequential()
+            The Concept: The Restorer. If a stream was previously marked as parallel(), this method switches it back
+                         to a single-threaded, sequential mode.
+                         Streams are either parallel or sequential based on the last call in the pipeline.
+
+        Real-Life Application: You might do heavy filtering in parallel, but you need the final sorting or printing to happen sequentially to maintain order.
+
+                            import java.util.Arrays;
+
+                            public class SequentialDeepDive {
+                                public static void main(String[] args) {
+                                    Arrays.asList(1, 2, 3, 4).parallelStream()
+                                          .filter(n -> n % 2 == 0)
+                                          .sequential() // Switch back to single thread
+                                          .forEach(System.out::println);
+                                }
+                            }
+
+        20. mapToObj(IntFunction<U>):
+            The Concept: The Object Wrapper. This is a specialized version of map found on primitive streams
+                        (IntStream, LongStream, DoubleStream). It is used to convert a primitive value into a custom Object.
+
+                        Real-Life Application: Converting a stream of raw primitive IDs into a stream of User objects.
+
+                        import java.util.stream.IntStream;
+
+                        public class MapToObjDeepDive {
+                            public static void main(String[] args) {
+                                // Concept: Convert primitive ints into String objects
+                                IntStream.range(1, 4)
+                                         .mapToObj(id -> "Employee_ID_" + id)
+                                         .forEach(System.out::println);
+                            }
+                        }
+
+        Summary Table of All Intermediate Categories
+            Category	                Methods
+            Transforming	        map, flatMap, mapMulti, mapTo[Type], mapToObj
+            Filtering	            filter, distinct, takeWhile, dropWhile
+            Sizing	                limit, skip
+            Ordering	            sorted, unordered
+            Debugging	            peek
+            Threading	            parallel, (or parallelStream()), sequential
+            Primitive Helper	    boxed, asDoubleStream, asLongStream
+
+        Critical "Under the Hood" Knowledge
+            1. The "Last Call" Wins: A stream is either 100% parallel or 100% sequential.
+               If you call both .parallel() and .sequential() in the same pipeline, the last one before
+               the terminal operation wins.
+
+               example:  list.stream()
+                        .parallel()   // Switch to parallel
+                        .filter(...)
+                        .sequential() // Switch BACK to sequential
+                        .map(...)     // The WHOLE pipeline runs sequentially now
+                        .collect(...);
+
+
+            2. The Common Thread Pool: Both methods use the same ForkJoinPool.commonPool() internally.
+               This means they both share the same CPU resources. If you run too many parallel streams at once,
+               they can slow each other down because they are all fighting for the same threads.
+
+            3. When NOT to use Parallel:
+                  1. When the dataset is small (the overhead of splitting the data is more expensive than just processing it).
+                  2. When the order of elements is strictly important.
+                  3. When you are doing I/O (like writing to a file or database), as parallel threads will fight for the
+                     same connection.
