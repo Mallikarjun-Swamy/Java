@@ -3,32 +3,34 @@ package collectionFramework.list.linkedList;
 
 public class CustomSinglyLinkedList<T> {
 
-    private Node headPointer;
-    private int nodeCounter;
+    private Node head;
+    private int size;
 
 
     //Node for storing data and next element address
     private class Node {
         T data;
-        Node nextPointer;
+        Node next;
 
         Node(T data){
             this.data = data;
-            this.nextPointer = null;
+            this.next = null;
         }
     }
 
     //method to add element at first position (0 index)
     public void addAtFirst(T data){
         Node newNode = new Node(data);
-        if (headPointer == null){
-            headPointer = newNode;
-            nodeCounter++;
+
+        if (head == null){
+            head = newNode;
+            size++;
             return;
         }
-        newNode.nextPointer = headPointer;
-        headPointer = newNode;
-        nodeCounter++;
+
+        newNode.next = head;
+        head = newNode;
+        size++;
     }
 
 
@@ -41,26 +43,26 @@ public class CustomSinglyLinkedList<T> {
     //method add element at last
     public void addAtLast(T data){
         Node newNode = new Node(data);
-        if (headPointer == null){
-            headPointer = newNode;
-            nodeCounter++;
+        if (head == null){
+            head = newNode;
+            size++;
             return;
         }
 
-        Node currentNode = headPointer;
-        while (currentNode.nextPointer != null){
-            currentNode = currentNode.nextPointer;
+        Node currentNode = head;
+        while (currentNode.next != null){
+            currentNode = currentNode.next;
         }
-        currentNode.nextPointer = newNode;
-        nodeCounter++;
+        currentNode.next = newNode;
+        size++;
     }
 
     //method to get element at a index
     public T get(int index){
-        Node currentNode = headPointer;
-        if (index >= 0 && index < nodeCounter){
+        Node currentNode = head;
+        if (index >= 0 && index < size){
             for (int i = 0; i < index; i++) {
-                currentNode = currentNode.nextPointer;
+                currentNode = currentNode.next;
             }
         } else {
             throw new IllegalArgumentException("Index : " + index + " is out of Range" + " since Size is " + size());
@@ -71,37 +73,26 @@ public class CustomSinglyLinkedList<T> {
 
     //method to check wether a element is available or not in the LinkedList
     public boolean searchElement(T element){
-        Node currentNode = headPointer;
-        while (currentNode.nextPointer != null){
+        Node currentNode = head;
+        while (currentNode.next != null){
             if (currentNode.data.equals(element)){
                 return true;
             }
-            currentNode = currentNode.nextPointer;
+            currentNode = currentNode.next;
         }
         return false;
     }
 
     //method to remove element at particular index
     public void removeAtIndex(int index){
-        Node nextOfremove = headPointer;
-        Node prevOfremove = headPointer;
-        if (index >= 0 && index < nodeCounter){
-            for (int i = 0; i < index ; i++) {
-                nextOfremove = nextOfremove.nextPointer;
-                prevOfremove = nextOfremove.nextPointer;
-            }
-            nextOfremove = nextOfremove.nextPointer;
-            prevOfremove = nextOfremove;
-        } else {
-            throw new IllegalArgumentException("Index : " + index + " is out of Range" + " since Size is " + size());
-        }
+
 
     }
 
 
     //method to return the size of LinkedList
     public int size(){
-        return nodeCounter;
+        return size;
     }
 
 
@@ -109,16 +100,16 @@ public class CustomSinglyLinkedList<T> {
     //method to print all elements in the collections
     @Override
     public String toString() {
-        if (headPointer == null){
+        if (head == null){
             return "[]";
         }
 
         StringBuilder builder = new StringBuilder("[");
 
-        Node currentNode = headPointer;
+        Node currentNode = head;
         while (currentNode != null){
             builder.append(currentNode.data).append(", ");
-            currentNode = currentNode.nextPointer;
+            currentNode = currentNode.next;
         }
         builder.append("\b\b").append("]");
         return builder.toString();
